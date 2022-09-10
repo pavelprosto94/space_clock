@@ -10,6 +10,7 @@ import json
 import machine
 sys.path.append("/flash/sys")
 from helper import *
+from about import AboutScreen
 
 MAX_BR=100
 ADAPTIVE_BR=True
@@ -17,6 +18,7 @@ MIN_BR=10
 UTC_ZONE=3
 ALARM_WAV='res/fallout.wav'
 wavFreez = False
+showEnbl = False
       
 def ConfigLoad():
   global MAX_BR
@@ -55,6 +57,7 @@ def ConfigSave():
 
 def ConfigScreen(screen):
   global ALARM_WAV
+  global showEnbl
   screen0 = screen.get_new_screen()
   screen.load_screen(screen0)
   screen.set_screen_brightness(MAX_BR)
@@ -106,7 +109,8 @@ def ConfigScreen(screen):
   
   def tab0Create():
     obj[0].append(M5Btn(text='Sync', x=210, y=80, w=80, h=30, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
-    obj[0][-1].pressed(clickSync)
+    obj[0][-1].pressed(vidro)
+    obj[0][-1].released(clickSync)
     obj[0].append(M5Line(x1=5, y1=135, x2=315, y2=135, color=0xa0a0a0, width=1, parent=screen0))
     obj[0].append(M5Label('You can synchronize\n the RTC chip\n from an online server', x=20, y=75, color=0x000, font=FONT_MONT_14, parent=screen0))
     obj[0].append(M5Label('Choose your UTC time zone', x=20, y=150, color=0x000, font=FONT_MONT_14, parent=screen0))
@@ -200,10 +204,39 @@ def ConfigScreen(screen):
     M5Label('Restart...', x=117, y=111, color=0xffffff, font=FONT_MONT_18, parent=None)
     vidro()
     machine.reset()
+  
+  def showAbout():
+    global showEnbl
+    showEnbl = True
+  
+  def disableRing():
+    try:
+      os.rename('res/ding.wav', 'res/ding_dis.wav')
+    except OSError:
+      pass
+    vidro()
+  
+  def enableRing():
+    try:
+      os.rename('res/ding_dis.wav', 'res/ding.wav')
+    except OSError:
+      pass
+    vidro()
       
   def tab3Create():
-    obj[3].append(M5Btn(text='Restart device', x=20, y=80, w=280, h=40, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
+    obj[3].append(M5Btn(text='Restart device', x=20, y=70, w=280, h=35, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
     obj[3][-1].pressed(debugModePress)
+    obj[3].append(M5Btn(text='About', x=20, y=110, w=280, h=35, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
+    obj[3][-1].pressed(vidro)
+    obj[3][-1].released(showAbout)
+    tmp=os.listdir('/flash/res/')
+    if ('ding.wav' in tmp) or ('ding_dis.wav' in tmp):
+      obj[3].append(M5Label("Disable the startup ringtone:", x=20, y=160, color=0x000, font=FONT_MONT_14, parent=screen0))
+      obj[3].append(M5Switch(250,155))
+      if ('ding_dis.wav' in tmp):
+        obj[3][-1].set_on()
+      obj[3][-1].on(disableRing)
+      obj[3][-1].off(enableRing)
 
   def tabHide():
     for i in range(0,len(obj[ind_tab])):
@@ -225,7 +258,13 @@ def ConfigScreen(screen):
   touched_cord = None
   vidro()
   while run:
-    if touch.status():
+    if showEnbl:
+      wait(0.1)
+      AboutScreen(screen)
+      wait(0.1)
+      showEnbl=False
+      run=False
+    elif touch.status():
       if touched_time==0:
         touched_time=time.ticks_ms()
         touched_cord = touch.read()
@@ -257,7 +296,7 @@ def ConfigScreen(screen):
         elif MAX_BR_old!=MAX_BR:
           MAX_BR_old=MAX_BR
           screen.set_screen_brightness(MAX_BR)
-      touched_time=0
+        touched_time=0
   ConfigLoad()
   vidro()
   screen0 = screen.get_act_screen()

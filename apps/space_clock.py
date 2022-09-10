@@ -11,6 +11,7 @@ sys.path.append("/flash/sys")
 from helper import *
 from alarm import alarmExplorer
 from setup import ConfigLoad, ConfigScreen
+from notifications import NotificationsScreen
 
 def getBrightness(hh,mm):
   if hh<6:
@@ -261,7 +262,10 @@ while run:
             elif (touch.read()[0])<105 and (touch.read()[0])>5:
               #print("1 but hold")
               vidro()
-              alarm_mode=0
+              screen0 = screen.get_act_screen()
+              screen1=NotificationsScreen(screen)
+              screen.load_screen(screen0)
+              screen.del_screen(screen1)
               pass
   else:
     if touched_time>0 and touched_time!=-1:

@@ -79,7 +79,7 @@ if wifiCfg.wlan_sta.isconnected():
             if "/" in path:
               ans=mkDir(path)
               if ans!="":
-                label0.set_text("Made path:\n{}".format(ans))
+                label0.set_text("Made path:\n{}".format(path))
             file_d = urequests.request(method="GET", url="https://raw.githubusercontent.com/pavelprosto94/space_clock/main/{}".format(path), headers={ 'User-Agent': 'M5Stack'})
             if (path[path.rfind(".")])==".py" or (path[path.rfind(".")])==".txt":
               with open("/flash/"+path, 'w') as f:
