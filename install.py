@@ -1,14 +1,14 @@
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
-import wifiCfg, _thread, urequests, base64, os
+import wifiCfg, _thread, urequests, os
 
 def mkDir(path):
   try:
-    os.mkdir("/flash/"+path[:path.find("/")+1])
+    os.mkdir("/flash/"+path[:path.rfind("/")])
   except Exception as e: 
     return ""
-  return "/flash/"+path[:path.find("/")+1]
+  return "/flash/"+path[:path.rfind("/")]
 
 url="https://api.github.com/repos/pavelprosto94/space_clock/git/trees/main?recursive=1"
 animation_enable = -1
@@ -58,7 +58,8 @@ if wifiCfg.wlan_sta.isconnected():
   label0.set_text("Connecting to git...")
   try:
     ignore=[
-      "README.md"
+      "README.md",
+      "install.py"
     ]
     data = urequests.request(method="GET", url=url, headers={ 'User-Agent': 'M5Stack'})
     data = data.json()
@@ -67,23 +68,25 @@ if wifiCfg.wlan_sta.isconnected():
         label0.set_text(str(data["message"]))
       else:
         label0.set_text("Error 0")
-    else:  
-      for d in data["tree"]:
+    else:
+      bar0.set_range(0, len(data["tree"]))
+      for i,d in enumerate(data["tree"]):
+        bar0.set_value(i)
         if d["type"]=="blob":
           path=d["path"]
-          if not path in ignore and path[0]!="." and path[:path.find("/")]!="resources":
+          if not (path in ignore) and path[0]!="." and path[:path.find("/")]!="resources":
             label0.set_text("Writing...\n{}".format(path))
-            file_d = urequests.request(method="GET", url=d["url"], headers={ 'User-Agent': 'M5Stack'})
-            file_d = file_d.json()
             if "/" in path:
               ans=mkDir(path)
               if ans!="":
                 label0.set_text("Made path:\n{}".format(ans))
-            file_str=file_d["content"]
-            file_bytes = base64.b64decode(file_str)
-            with open("/flash/"+path, 'wb') as f:
-              f.write(file_bytes) 
-            wait(0.1)
+            file_d = urequests.request(method="GET", url="https://raw.githubusercontent.com/pavelprosto94/space_clock/main/{}".format(path), headers={ 'User-Agent': 'M5Stack'})
+            if (path[path.rfind(".")])==".py" or (path[path.rfind(".")])==".txt":
+              with open("/flash/"+path, 'w') as f:
+                f.write(file_d.text) 
+            else:
+              with open("/flash/"+path, 'wb') as f:
+                f.write(file_d.content) 
       installing=True
   except Exception as e: 
     label1.set_text(str(e))

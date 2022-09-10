@@ -1,0 +1,1 @@
+{"setup": {"ADAPTIVE_BR": true, "ALARM_WAV": "res/ping.wav", "MAX_BR": 90, "MIN_BR": 10, "UTC_ZONE": 3}, "alarms": [{"mm": 0, "lastRun": 366099, "weekRepeat": [[]], "enable": true, "hh": 8}, {"mm": 0, "lastRun": 366099, "weekRepeat": [["Mon", "Tue", "Wed", "Thu", "Fri"]], "enable": true, "hh": 9}]}
