@@ -1,3 +1,14 @@
+try:
+  if str(__file__) == "menu/app.py":
+    import machine
+    fileA = open('/flash/apps/setup_explorer.py', 'rb')
+    fileB = open('/flash/main.py', 'wb')
+    fileB.write(fileA.read())
+    fileA.close()
+    fileB.close()
+    machine.reset()
+except Exception as e:
+  print("run setup")
 from m5stack import *
 from m5stack_ui import *
 from uiflow import *
@@ -302,6 +313,5 @@ def ConfigScreen(screen):
   screen0 = screen.get_act_screen()
   return screen0
 
-# screen = M5Screen()
-# screen.clean_screen()
-# ConfigScreen(screen)
+screen = M5Screen()
+ConfigScreen(screen)

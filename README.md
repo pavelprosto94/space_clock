@@ -30,6 +30,18 @@
 - Select App > space_clock.py > Run
 
 A bug may occur, the clock is not drawn, and the Run button is lit blue. Don't worry, M5Stack has already specified this file as the default execution.
-- Restart your device
 - Don't press anything and wait 10 seconds
 - After that, the clock will start itself
+
+## Update device
+- Restart your device
+- Select Flow > Wi-Fi
+- Go to M5Flow (https://flow.m5stack.com /)
+- Specify your "API KEY" and device type "Core2"
+- Switch to Python mode
+- Copy and paste **New install** code from the file (https://github.com/pavelprosto94/space_clock/blob/main/install.py )
+- Click the Run button
+![preview](resources/help_1.jpg)
+- Wait for the installation to finish. All necessary files will be copied from the GitHub repository
+- After restart the device
+- Select App > space_clock.py > Run
