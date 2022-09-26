@@ -9,7 +9,7 @@ def distance(cord1, cord2):
   c = sqrt((cord2[0]-cord1[0])**2 + (cord2[1]-cord1[1])**2)
   return c
 
-def vibro():
+def vidro():
   vibrating()
   
 def fileExist(path="/"):
