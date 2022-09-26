@@ -11,6 +11,22 @@ except Exception as e:
   print("run clock")
 from m5stack import M5Screen, rtc, speaker, power, touch
 from uiflow import wait
+def runDeamon(filepath):
+  if filepath!="":
+    print("run deamon:"+filepath)
+    try:
+      data = open(filepath).read()
+      data = data[:data.find("0xff end deamon")]
+      exec(data,{},{"__file__":"Deamon"})
+    except Exception as e:
+        print(str(e))
+    print("end deamon:"+filepath)
+if ('deamon.py' in os.listdir("/flash")):
+  with open("/flash/deamon.py", 'r') as f:
+    my_lines = f.readlines()
+    for l in my_lines:
+      runDeamon(l[:-1])
+      wait(2)
 import lvgl as lv
 
 screen = M5Screen()

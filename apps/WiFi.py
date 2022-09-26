@@ -148,25 +148,25 @@ def change_boot():
 from machine import Pin 
 import os
 try:
-    sd = SDCard(slot=3, miso=Pin(38), mosi=Pin(23), sck=Pin(18), cs=Pin(4))
-    sd.info()
-    os.mount(sd, '/sd')
-    print(\"SD card mounted at \\\"/sd\\\"\")
+  sd = SDCard(slot=3, miso=Pin(38), mosi=Pin(23), sck=Pin(18), cs=Pin(4))
+  sd.info()
+  os.mount(sd, '/sd')
+  print(\"SD card mounted at \\\"/sd\\\"\")
 except (KeyboardInterrupt, Exception) as e:
-    # print('SD mount caught exception {} {}'.format(type(e).__name__, e))
-    pass"""
+  # print('SD mount caught exception {} {}'.format(type(e).__name__, e))
+  pass"""
   if sw1.get_state():
     dat1="""from machine import SDCard
 from machine import Pin 
 import os, wifiCfg
 try:
-    sd = SDCard(slot=3, miso=Pin(38), mosi=Pin(23), sck=Pin(18), cs=Pin(4))
-    sd.info()
-    os.mount(sd, '/sd')
-    print(\"SD card mounted at \\\"/sd\\\"\")
+  sd = SDCard(slot=3, miso=Pin(38), mosi=Pin(23), sck=Pin(18), cs=Pin(4))
+  sd.info()
+  os.mount(sd, '/sd')
+  print(\"SD card mounted at \\\"/sd\\\"\")
 except (KeyboardInterrupt, Exception) as e:
-    # print('SD mount caught exception {} {}'.format(type(e).__name__, e))
-    pass
+  # print('SD mount caught exception {} {}'.format(type(e).__name__, e))
+  pass
     
 wifiCfg.autoConnect(lcdShow=False)"""
   with open('/flash/boot.py', 'wb') as fileB:

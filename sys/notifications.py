@@ -28,7 +28,7 @@ def seenNotification(id):
     for d in notification['tree']:
       if d['id']==id:
         notification['lastseen']=notification['tree']['id']
-        nvs.write(str('notification'), json.dumps(notification))
+        nvs.write('notification', json.dumps(notification))
         break
 
 def readNotifications():

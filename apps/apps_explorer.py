@@ -87,7 +87,7 @@ while run:
       lv.disp_load_scr(root)
       subscreen.delete()
     else:
-      exec(open("/flash/apps/{}".format(apps[ind_run])).read(),{})
+      exec(open("/flash/apps/{}".format(apps[ind_run])).read(),{},{"__file__":"Apps"})
     lv.disp_load_scr(root)
     ind_run=-1
   elif touch.status():
