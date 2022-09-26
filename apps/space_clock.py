@@ -40,8 +40,6 @@ import sys
 sys.path.append("/flash/sys")
 from helper import *
 sys.path.append("/flash/apps")
-from alarm_explorer import alarmExplorer
-from notifications import NotificationsScreen
   
 def loadPNG(path):
   try:
@@ -324,33 +322,39 @@ try:
                 vibrating()
                 screen.load_screen(rootLoading)
                 wait(0.01)
-                exec(open("/flash/apps/setup_explorer.py").read(),{})
+                exec(open("/flash/apps/apps_explorer.py").read(),{})
                 screen.load_screen(root)
                 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
-                pass
+                fix_update=0
               elif (touch.read()[0])<215 and (touch.read()[0])>115:
                 #print("2 but hold")
                 vibrating()
+                screen.load_screen(rootLoading)
+                wait(0.01)
+                from Alarm_explorer import alarmExplorer
                 subscreen=alarmExplorer(screen)
                 screen.load_screen(root)
                 screen.del_screen(subscreen)
                 alarms=getAlarms()
-                pass
+                fix_update=0
               elif (touch.read()[0])<105 and (touch.read()[0])>5:
                 #print("1 but hold")
                 vibrating()
+                screen.load_screen(rootLoading)
+                wait(0.01)
+                from Notify_explorer import notificationsExplorer
                 screen0 = screen.get_act_screen()
-                screen1=NotificationsScreen(screen)
+                screen1=notificationsExplorer()
                 screen.load_screen(root)
                 screen.del_screen(screen1)
-                pass
+                fix_update=0
     else:
       if touched_time>0 and touched_time!=-1:
         if touched_pos!=None:
           onTouchReleased()
       touched_time=0
     fix_update+=1
-    if but_state:
+    if but_state or alarm_mode>-1:
       wait(0.04)
     else:
       wait(0.1)

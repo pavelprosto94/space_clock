@@ -1,7 +1,7 @@
 try:
   if str(__file__) == "menu/app.py":
     import machine
-    fileA = open('/flash/apps/alarm_explorer.py', 'rb')
+    fileA = open('/flash/apps/Alarm_explorer.py', 'rb')
     fileB = open('/flash/main.py', 'wb')
     fileB.write(fileA.read())
     fileA.close()
@@ -191,6 +191,8 @@ def alarmEditor(screen,hh=-1,mm=-1,weekRepeat=None):
 
 
 def alarmExplorer(screen):
+  if screen==None:
+    screen = M5Screen()
   screen0 = screen.get_new_screen()
   screen.load_screen(screen0)
   val=[]
@@ -202,7 +204,7 @@ def alarmExplorer(screen):
   lines=[]
   label0=M5Label("The alarm list is empty.\nPress \"+add\" to add a new.", x=10, y=12, color=0x226577, font=FONT_MONT_14)
   label1=M5Label("+ add", x=140, y=224, color=0xd84949, font=FONT_MONT_14, parent=screen0)
-  label2=M5Label("cancel", x=238, y=224, color=0xd84949, font=FONT_MONT_14, parent=screen0)
+  M5Label("cancel", x=238, y=224, color=0xd84949, font=FONT_MONT_14, parent=screen0)
   
   def onSwitch():
     ind=int(touched_cord[1]/55)
@@ -351,6 +353,4 @@ try:
     alarmExplorer(screen)
 except Exception as e:
   import machine
-  screen = M5Screen()
-  alarmExplorer(screen)
   machine.reset()

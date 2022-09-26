@@ -1,24 +1,44 @@
-from m5stack import *
-from m5stack_ui import *
-from uiflow import *
-import sys
-sys.path.append("/flash/sys")
-from helper import vidro
+import nvs, json
 
-def NotificationsScreen(screen):
-  screen0 = screen.get_new_screen()
-  screen.load_screen(screen0)
-  M5Label('coming soon...', x=108, y=113, color=0x717171, font=FONT_MONT_14, parent=screen0)
-  M5Label("close", x=238, y=224, color=0xd84949, font=FONT_MONT_14, parent=screen0)
-  run=True
-  touched_time=1
-  while run:
-    if touch.status():
-      if touched_time==0:
-        if (touch.read()[1]) > 240:
-          touched_time=1
-          vidro()
-          run=False
-    else:
-      if touched_time>0:
-        touched_time=0
+def addNotification(from_name, body_text):
+  notification = readNotification()
+  if len(notification['tree'])>0:
+    ind=notification[-1]['id']+1
+    notification['tree'].append({
+                          'from': from_name,
+                          'body': body_text,
+                          'id': ind,
+                      })
+  if len(notification['tree'])>64:
+    notification['tree']=notification[:-60]
+  nvs.write(str('notification'), json.dumps(notification))
+
+def removeNotification(id):
+  notification = readNotification()
+  if len(notification['tree'])>0:
+    for i,d in enumerate(notification['tree']):
+      if d['id']==id:
+        notification['tree']['id'].pop(i)
+        break
+  nvs.write(str('notification'), json.dumps(notification))
+
+def seenNotification(id):
+  notification = readNotification()
+  if len(notification['tree'])>0:
+    for d in notification['tree']:
+      if d['id']==id:
+        notification['lastseen']=notification['tree']['id']
+        nvs.write(str('notification'), json.dumps(notification))
+        break
+
+def readNotifications():
+  notification = {}
+  notification['lastseen'] = -1
+  notification['tree'] = []
+  try:
+    notification = json.loads(str(nvs.read_str('notification')))
+  except Exception as e:
+    notification = {}
+    notification['lastseen'] = -1
+    notification['tree'] = []
+  return notification

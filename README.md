@@ -8,6 +8,8 @@
 - Add up to 4 alarm clocks. You can set up a repeat by day of the week.
 - Disable and activate alarms using the alarm clock manager.
 - Using the settings menu, you can synchronize your watch with the time from the Internet, adjust the brightness of the screen, select an alarm ringtone.
+- Connect to Wi-Fi using Wi-Fi Manager(No need to reboot your device)
+- View the weather using OpenWeather API
 
 ## I plan to add:
 - Notifications:

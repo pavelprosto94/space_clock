@@ -1,7 +1,7 @@
 try:
   if str(__file__) == "menu/app.py":
     import machine
-    fileA = open('/flash/apps/setup_explorer.py', 'rb')
+    fileA = open('/flash/apps/Setup_explorer.py', 'rb')
     fileB = open('/flash/main.py', 'wb')
     fileB.write(fileA.read())
     fileA.close()
@@ -21,7 +21,6 @@ import json
 import machine
 sys.path.append("/flash/sys")
 from helper import *
-from about import AboutScreen
 
 MAX_BR=100
 ADAPTIVE_BR=True
@@ -218,6 +217,8 @@ def ConfigScreen(screen):
   
   def showAbout():
     global showEnbl
+    global touched_time
+    touched_time=0
     showEnbl = True
   
   def disableRing():
@@ -233,12 +234,11 @@ def ConfigScreen(screen):
     except OSError:
       pass
     vidro()
-      
+
   def tab3Create():
     obj[3].append(M5Btn(text='Restart device', x=20, y=70, w=280, h=35, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
     obj[3][-1].pressed(debugModePress)
     obj[3].append(M5Btn(text='About', x=20, y=110, w=280, h=35, bg_c=0xFFFFFF, text_c=0x000000, font=FONT_MONT_14, parent=screen0))
-    obj[3][-1].pressed(vidro)
     obj[3][-1].released(showAbout)
     tmp=os.listdir('/flash/res/')
     if ('ding.wav' in tmp) or ('ding_dis.wav' in tmp):
@@ -271,9 +271,9 @@ def ConfigScreen(screen):
   while run:
     if showEnbl:
       wait(0.1)
-      AboutScreen(screen)
+      from about import AboutScreen
+      AboutScreen()
       wait(0.1)
-      showEnbl=False
       run=False
     elif touch.status():
       if touched_time==0:
