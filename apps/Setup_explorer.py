@@ -13,12 +13,7 @@ from m5stack import *
 from m5stack_ui import *
 from uiflow import *
 from easyIO import *
-import os
-import sys
-import _thread
-import wifiCfg
-import json
-import machine
+import os, sys, _thread, wifiCfg, json, machine
 sys.path.append("/flash/sys")
 from helper import *
 
