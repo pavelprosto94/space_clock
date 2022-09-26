@@ -1,18 +1,20 @@
+def showMessage(text):
+  import lvgl as lv
+  def event_close_handler(obj, event):
+    if event == lv.EVENT.VALUE_CHANGED:
+      obj.start_auto_close(0)
+  btns = ["Close", ""]
+  mbox1 = lv.msgbox(lv.scr_act())
+  mbox1.set_text(text)
+  mbox1.add_btns(btns)
+  mbox1.set_width(280)
+  mbox1.set_event_cb(event_close_handler)
+  mbox1.align(None, lv.ALIGN.CENTER, 0, 0)
+
 def BotDeamon():
   import sys
   sys.path.append("/flash/sys")
-  def showMessage(text):
-    import lvgl as lv
-    def event_close_handler(obj, event):
-      if event == lv.EVENT.VALUE_CHANGED:
-        obj.start_auto_close(0)
-    btns = ["Close", ""]
-    mbox1 = lv.msgbox(lv.scr_act())
-    mbox1.set_text(text)
-    mbox1.add_btns(btns)
-    mbox1.set_width(280)
-    mbox1.set_event_cb(event_close_handler)
-    mbox1.align(None, lv.ALIGN.CENTER, 0, 0)
+  
   def readToken():
     import nvs
     _botToken=""
@@ -36,19 +38,21 @@ def BotDeamon():
     print(body_text)
   print("Telegram bot starting")
   run=True
-  #while run:
-  if wifiCfg.wlan_sta.isconnected():
-    bot = utelegram.ubot(botToken)
-    bot.set_default_handler(get_message) 
-    wait(0.01)
-    print("Telegram bot run")
-    try:
-      bot.listen()
-    except Exception as e:
-      print(str(e))
-      showMessage("Telegram bot error:\n"+str(e))
-  #  wait(60*10)
-  #  print("Telegram bot restart")
+  while run:
+    if wifiCfg.wlan_sta.isconnected():
+      bot = utelegram.ubot(botToken)
+      bot.set_default_handler(get_message) 
+      print("Telegram bot run")
+      showMessage("Telegram bot run")
+      wait(0.01)
+      try:
+        bot.listen()
+      except Exception as e:
+        print(str(e))
+        showMessage("Telegram bot error:\n"+str(e))
+    wait(60*10)
+    showMessage("Telegram bot restart")
+    print("Telegram bot restart")
   print("Telegram bot stop")
 
 if str(__file__) == "Deamon":
@@ -81,19 +85,6 @@ elif str(__file__) == "flow/m5ucloud.py" or str(__file__) == "Apps":
       botToken=""
     if botToken=="None":
       botToken=""
-
-  def showMessage(text):
-    import lvgl as lv
-    def event_close_handler(obj, event):
-      if event == lv.EVENT.VALUE_CHANGED:
-        obj.start_auto_close(0)
-    btns = ["Close", ""]
-    mbox1 = lv.msgbox(lv.scr_act())
-    mbox1.set_text(text)
-    mbox1.add_btns(btns)
-    mbox1.set_width(280)
-    mbox1.set_event_cb(event_close_handler)
-    mbox1.align(None, lv.ALIGN.CENTER, 0, 0)
 
   def BotScreen():
     global root

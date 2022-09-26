@@ -270,24 +270,26 @@ def onTouchReleased():
       label2.set_text("Save the astronaut!")
       label2.set_pos(80, 216)
 #run deamon
-# def runDeamon(filepath):
-#   if filepath!="":
-#     print("run deamon:"+filepath)
-#     try:
-#       fdata = open(filepath, 'r')
-#       data=fdata.read()
-#       fdata.close()
-#       data = data[:data.find("0xff end deamon")]
-#       exec(data,{"__file__":"Deamon"})
-#     except Exception as e:
-#       print(str(e))
-#     print("end deamon:"+filepath)
-# if ('deamon.py' in os.listdir("/flash")):
-#   with open("/flash/deamon.py", 'r') as f:
-#     my_lines = f.readlines()
-#     for l in my_lines:
-#       runDeamon(l[:-1])
-#       wait(2)
+# def startDeamons():
+#   def runDeamon(filepath):
+#     if filepath!="":
+#       print("run deamon:"+filepath)
+#       try:
+#         fdata = open(filepath, 'r')
+#         data=fdata.read()
+#         fdata.close()
+#         data = data[:data.find("0xff end deamon")]
+#         exec(data,{"__file__":"Deamon"})
+#       except Exception as e:
+#         print(str(e))
+#       print("end deamon:"+filepath)
+#   if ('deamon.py' in os.listdir("/flash")):
+#     with open("/flash/deamon.py", 'r') as f:
+#       my_lines = f.readlines()
+#       for l in my_lines:
+#         runDeamon(l[:-1])
+#         wait(2)
+# _thread.start_new_thread(startDeamons,())
 #logic  
 fix_update=0
 run = True
