@@ -1,17 +1,44 @@
 try:
   if str(__file__) == "menu/app.py":
     import machine
+    import deviceCfg
     fileA = open('/flash/apps/space_clock.py', 'rb')
     fileB = open('/flash/main.py', 'wb')
     fileB.write(fileA.read())
     fileA.close()
     fileB.close()
+    deviceCfg.set_device_mode(2)
+    deviceCfg.set_startup_hold(False)
     machine.reset()
 except Exception as e:
   print("run clock")
-from m5stack import M5Screen
-from uiflow import wait
+import gc
 import lvgl as lv
+rootLoading = lv.obj()
+label = lv.label(rootLoading)
+label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
+label.set_text('Loading...')
+lv.disp_load_scr(rootLoading)
+from uiflow import wait
+wait(0.01)
+import sys
+sys.path.append("/flash/sys")
+from font import font_14, font_18
+try:
+  title_font=font_18()
+except Exception as e:
+  label.set_pos(0,0)
+  label.set_text("ERROR init title font:\n"+str(e))
+  sys.exit(0)
+gc.collect()
+try:
+  body_font=font_14()
+except Exception as e:
+  label.set_pos(0,0)
+  label.set_text("ERROR init body font:\n"+str(e))
+  sys.exit(0)
+gc.collect()
+from m5stack import M5Screen
 screen = M5Screen()
 screen.clean_screen()
 screen.set_screen_bg_color(0x000000)
@@ -20,6 +47,7 @@ style.init()
 colorBlack=lv.color_hex(0x000)
 colorWhite=lv.color_hex(0xf0f0f0)
 colorRed=lv.color_hex(0xf01010)
+colorGold=lv.color_hex(0xf0a010)
 style.set_bg_color(0,colorBlack)
 style.set_text_color(0,colorWhite)
 rootLoading = lv.obj()
@@ -27,19 +55,15 @@ rootLoading.add_style(0,style)
 label = lv.label(rootLoading)
 label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
 label.set_text('Loading...')
-screen.load_screen(rootLoading)
-wait(0.01)
+from helper import *
+from notifications import getUnreadNotificationsCount
 from m5stack import rtc, speaker, power, touch
 from easyIO import map_value
 import time
 import random
 from math import *
 import _thread
-import sys
-sys.path.append("/flash/sys")
-from helper import *
 sys.path.append("/flash/apps")
-  
 def loadPNG(path):
   try:
     with open(path,'rb') as f:
@@ -116,9 +140,10 @@ label1.set_pos(125,175)
 label1.set_style_local_text_font(0,0,lv.font_montserrat_18)
 label1.set_text(str("{:02d}-{:02d}-{:04d}").format(now[2],now[1],now[0]))
 label2 = lv.label(root)
-label2.set_pos(80,216)
 label2.set_style_local_text_font(0,0,lv.font_montserrat_18)
+label2.set_style_local_text_color(0,0,colorGold)
 label2.set_text("")
+label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
 star=[]
 for i in range(0,7):
   star.append(lv.img(root))
@@ -156,7 +181,7 @@ def redrawClock():
     style.set_text_color(0,colorRed)
     root.add_style(0,style)
     label2.set_text("Save the cosmonaut!")
-    label2.set_pos(80, 216)
+    label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
     label0.set_style_local_text_font(0,0,lv.font_montserrat_26)
     label0.set_pos(130, 4)
     label1.set_style_local_text_font(0,0,lv.font_montserrat_10)
@@ -171,6 +196,7 @@ def redrawClock():
     screen.set_screen_brightness(0)
     image3.set_hidden(False)
     label2.set_text("")
+    label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
     image1.set_pos(10, 120)
     image1.set_src(loadPNG("res/space_clock/cosmonaut_0.png"))
     image0.set_pos(120, 0)
@@ -248,8 +274,8 @@ def onTouchPressed():
   if alarm_mode>-1:
     if (touch.read()[0]>=x-4) and (touch.read()[0]<=x+46) and (touch.read()[1]>=y-4) and (touch.read()[1]<=y+46):
       touched_pos=touch.read()
-      label2.set_pos(60, 216)
       label2.set_text("Move it to the spaceship!")
+      label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
 
 def onTouchReleased():
   global touched_pos
@@ -268,28 +294,33 @@ def onTouchReleased():
         touched_pos=None
     else:
       label2.set_text("Save the astronaut!")
-      label2.set_pos(80, 216)
-#run deamon
-# def startDeamons():
-#   def runDeamon(filepath):
-#     if filepath!="":
-#       print("run deamon:"+filepath)
-#       try:
-#         fdata = open(filepath, 'r')
-#         data=fdata.read()
-#         fdata.close()
-#         data = data[:data.find("0xff end deamon")]
-#         exec(data,{"__file__":"Deamon"})
-#       except Exception as e:
-#         print(str(e))
-#       print("end deamon:"+filepath)
-#   if ('deamon.py' in os.listdir("/flash")):
-#     with open("/flash/deamon.py", 'r') as f:
-#       my_lines = f.readlines()
-#       for l in my_lines:
-#         runDeamon(l[:-1])
-#         wait(2)
-# _thread.start_new_thread(startDeamons,())
+      label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
+
+def startDeamons():
+  def runDeamon(filepath):
+    if filepath!="":
+      print("run deamon:"+filepath)
+      try:
+        fdata = open(filepath, 'r')
+        data=fdata.read()
+        fdata.close()
+        data = data[:data.find(" {} 0xff end deamon".format(chr(35)))]
+        exec(data,{"__file__":"Deamon"})
+        gc.collect()
+      except Exception as e:
+        print(str(e))
+      print("end deamon:"+filepath)
+  if ('deamon.py' in os.listdir("/flash")):
+    with open("/flash/deamon.py", 'r') as f:
+      my_lines = f.readlines()
+      for l in my_lines:
+        runDeamon(l[:-1])
+    unReadN=getUnreadNotificationsCount()
+    if unReadN>0:
+      label2.set_text("{} unread notifications".format(unReadN))
+      label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
+    else:
+      label2.set_text("")
 #logic  
 fix_update=0
 run = True
@@ -317,9 +348,12 @@ try:
               elif now[3] in al[2]:
                 alarm_mode=i
         draw25sec()
-        if (fix_update>=100 and not but_state) or (fix_update>=250):
+        if (fix_update%100==0 and not but_state):
           draw100sec()
+        if fix_update>=600:
           fix_update=0
+          if alarm_mode==-1:
+            startDeamons()
     #logic touch
     if touch.status():
       if touched_time==0:
@@ -332,7 +366,7 @@ try:
           fix_update=0
           vibrating()
       elif touched_time!=-1 and alarm_mode==-1:
-        if time.ticks_ms()-touched_time>1000:
+        if time.ticks_ms()-touched_time>500:
           if distance(touched_cord,touch.read())<3:
             touched_time=-1
             if (touch.read()[1]) > 240:
@@ -341,7 +375,8 @@ try:
                 vibrating()
                 screen.load_screen(rootLoading)
                 wait(0.01)
-                exec(open("/flash/apps/apps_explorer.py").read(),{})
+                exec(open("/flash/apps/apps_explorer.py").read(),{'body_font':body_font, 'title_font':title_font})
+                gc.collect()
                 screen.load_screen(root)
                 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
                 fix_update=0
@@ -361,9 +396,9 @@ try:
                 vibrating()
                 screen.load_screen(rootLoading)
                 wait(0.01)
-                from Notify_explorer import notificationsExplorer
+                from Notify_explorer import notificationsExplorer  
                 screen0 = screen.get_act_screen()
-                screen1=notificationsExplorer()
+                screen1=notificationsExplorer(body_font, title_font)
                 screen.load_screen(root)
                 screen.del_screen(screen1)
                 fix_update=0

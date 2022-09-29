@@ -83,7 +83,7 @@ def GetWeather(city_id=-1, lang="en"):
       temp=str(int(data['main']['temp']))+" C°"
       if temp[0]!="-" and temp!="0": temp="+"+temp
       icon=CACHEPATH+"/{}.png".format(data['weather'][0]['icon'])
-      iconURL="http://openweathermap.org/img/wn/{}@4x.png".format(data['weather'][0]['icon'])
+      iconURL="http://openweathermap.org/img/wn/{}.png".format(data['weather'][0]['icon'])
       if not fileExist(icon):
         try:
           res=urequests.request(method="GET", 

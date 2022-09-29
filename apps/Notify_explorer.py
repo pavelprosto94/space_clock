@@ -16,7 +16,7 @@ import os, sys, time, wifiCfg, _thread
 sys.path.append("/flash/sys")
 from helper import vibrating, distance
 from weather import GetWeather, getCity
-from notifications import readNotifications
+from notifications import readNotifications, seenNotifications
 
 def openPNG(path):
   with open(path,'rb') as f: data = f.read()
@@ -37,7 +37,6 @@ def loadWeather(img_w,label_c):
       pass
 
 def event_handler(obj, event):
-  global subscreen
   if event == lv.EVENT.LONG_PRESSED:
     pass
     # l=obj.get_child(None)
@@ -52,9 +51,9 @@ def showNotifications(list_f,label_sub):
     pass
   notification=readNotifications()
   try:
-    for d in notification['tree']:
-      l="{}: {}".format(str(d['from']),str(d['body']))
-      if len(l>128):
+    for d in notification['tree'][::-1]:
+      l="{}: {}".format(d['from'],d['body'])
+      if len(l)>128:
         l=l[:128]
       btn_new=list_f.add_btn(lv.SYMBOL.BELL,l)
       #btn_new.set_event_cb(event_handler)
@@ -64,19 +63,12 @@ def showNotifications(list_f,label_sub):
       label_sub.set_hidden(True)
       btn_new=list_f.add_btn(lv.SYMBOL.BELL,"No notifications")
   except Exception as e:
-    label.set_text(str(e))
-    label.align(rootLoading,lv.ALIGN.CENTER, 0, 0)
-    lv.disp_load_scr(rootLoading)
-      
-root=None
-subscreen=None
-rootLoading = lv.obj()
-label = lv.label(rootLoading)
-def notificationsExplorer():
-  global root
-  global subscreen
-  root = lv.obj()
+    print("ERROR notifications"+str(e))
 
+def notificationsExplorer(body_font=lv.font_montserrat_14,title_font=lv.font_montserrat_18):
+  subscreen=None
+  root = lv.obj()
+  root.set_style_local_text_font(0,0,body_font)
   label_shadow_style = lv.style_t()
   label_shadow_style.init()
   label_shadow_style.set_text_color(lv.STATE.DEFAULT, lv.color_hex(0xd84949))
@@ -96,17 +88,18 @@ def notificationsExplorer():
   page.set_size(100,50)
   label_c = lv.label(page)
   label_c.set_pos(42,14)
-  label_c.set_style_local_text_font(0,0,lv.font_montserrat_18)
+  label_c.set_style_local_text_font(0,0,title_font)
   label_c.set_text(" ..")
   img_w = lv.img(page)
   img_w.set_src(openPNG("/flash/res/weather/error.png"))
   label_h = lv.label(root)
   label_h.set_pos(14,10)
-  label_h.set_style_local_text_font(0,0,lv.font_montserrat_26)
+  label_h.set_style_local_text_font(0,0,title_font)
   label_h.set_style_local_text_color(0,0,lv.color_hex(0x226577))
-  label_h.set_text("Notifications")
+  label_h.set_text(lv.SYMBOL.BELL+"Notifications")
   list_f = lv.list(root)
   list_f.set_size(320, 165)
+  list_f.set_style_local_text_font(0,0,body_font)
   list_f.set_pos(0,50)
   lv.disp_load_scr(root)
   showNotifications(list_f,label_sub)
@@ -126,12 +119,18 @@ def notificationsExplorer():
             if distance(touched_cord,touch.read())<3:
               touched_time=-1
               if (touch.read()[0])<315 and (touch.read()[0])>225:
-                if subscreen!=None:
-                  lv.disp_load_scr(root)
-                  subscreen.delete()
-                  subscreen=None
-                else:
-                  run=False
+                if label_cl.is_visible():
+                  if subscreen!=None:
+                    lv.disp_load_scr(root)
+                    subscreen.delete()
+                    subscreen=None
+                  else:
+                    vibrating()
+                    list_f.set_hidden(True)
+                    label_cl.set_hidden(True)
+                    label_sub.set_hidden(True)
+                    seenNotifications()
+                    run=False
               elif (touch.read()[0])<215 and (touch.read()[0])>115:
                 if subscreen==None and label_sub.is_visible():
                   vibrating()
@@ -144,6 +143,8 @@ def notificationsExplorer():
 
 try:
   if str(__file__) == "flow/m5ucloud.py":
+    rootLoading = lv.obj()
+    label = lv.label(rootLoading)
     label.set_text('Loading...')
     label.align(rootLoading,lv.ALIGN.CENTER, 0, 0)
     lv.disp_load_scr(rootLoading)
