@@ -296,31 +296,31 @@ def onTouchReleased():
       label2.set_text("Save the astronaut!")
       label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
 
-def startDeamons():
-  def runDeamon(filepath):
-    if filepath!="":
-      print("run deamon:"+filepath)
-      try:
-        fdata = open(filepath, 'r')
-        data=fdata.read()
-        fdata.close()
-        data = data[:data.find(" {} 0xff end deamon".format(chr(35)))]
-        exec(data,{"__file__":"Deamon"})
-        gc.collect()
-      except Exception as e:
-        print(str(e))
-      print("end deamon:"+filepath)
-  if ('deamon.py' in os.listdir("/flash")):
-    with open("/flash/deamon.py", 'r') as f:
-      my_lines = f.readlines()
-      for l in my_lines:
-        runDeamon(l[:-1])
-    unReadN=getUnreadNotificationsCount()
-    if unReadN>0:
-      label2.set_text("{} unread notifications".format(unReadN))
-      label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
-    else:
-      label2.set_text("")
+# def startDeamons():
+#   def runDeamon(filepath):
+#     if filepath!="":
+#       print("run deamon:"+filepath)
+#       try:
+#         fdata = open(filepath, 'r')
+#         data=fdata.read()
+#         fdata.close()
+#         data = data[:data.find(" {} 0xff end deamon".format(chr(35)))]
+#         exec(data,{"__file__":"Deamon"})
+#         gc.collect()
+#       except Exception as e:
+#         print(str(e))
+#       print("end deamon:"+filepath)
+#   if ('deamon.py' in os.listdir("/flash")):
+#     with open("/flash/deamon.py", 'r') as f:
+#       my_lines = f.readlines()
+#       for l in my_lines:
+#         runDeamon(l[:-1])
+#     unReadN=getUnreadNotificationsCount()
+#     if unReadN>0:
+#       label2.set_text("{} unread notifications".format(unReadN))
+#       label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
+#     else:
+#       label2.set_text("")
 #logic  
 fix_update=0
 run = True
@@ -348,12 +348,12 @@ try:
               elif now[3] in al[2]:
                 alarm_mode=i
         draw25sec()
-        if (fix_update%100==0 and not but_state):
+        if fix_update%100==0:
           draw100sec()
-        if fix_update>=600:
-          fix_update=0
-          if alarm_mode==-1:
-            startDeamons()
+          if fix_update>=600:
+            #if alarm_mode==-1:
+            #  startDeamons()
+            fix_update=1
     #logic touch
     if touch.status():
       if touched_time==0:
@@ -363,7 +363,7 @@ try:
         if br!=MAX_BR:
           br=MAX_BR
           screen.set_screen_brightness(br)
-          fix_update=0
+          fix_update=1
           vibrating()
       elif touched_time!=-1 and alarm_mode==-1:
         if time.ticks_ms()-touched_time>500:
@@ -376,10 +376,9 @@ try:
                 screen.load_screen(rootLoading)
                 wait(0.01)
                 exec(open("/flash/apps/apps_explorer.py").read(),{'body_font':body_font, 'title_font':title_font})
-                gc.collect()
                 screen.load_screen(root)
                 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
-                fix_update=0
+                fix_update=1
               elif (touch.read()[0])<215 and (touch.read()[0])>115:
                 #print("2 but hold")
                 vibrating()
@@ -390,7 +389,7 @@ try:
                 screen.load_screen(root)
                 screen.del_screen(subscreen)
                 alarms=getAlarms()
-                fix_update=0
+                fix_update=1
               elif (touch.read()[0])<105 and (touch.read()[0])>5:
                 #print("1 but hold")
                 vibrating()
@@ -401,14 +400,14 @@ try:
                 screen1=notificationsExplorer(body_font, title_font)
                 screen.load_screen(root)
                 screen.del_screen(screen1)
-                fix_update=0
+                fix_update=1
     else:
       if touched_time>0 and touched_time!=-1:
         if touched_pos!=None:
           onTouchReleased()
       touched_time=0
     fix_update+=1
-    if but_state or alarm_mode>-1:
+    if alarm_mode>-1:
       wait(0.04)
     else:
       wait(0.1)
