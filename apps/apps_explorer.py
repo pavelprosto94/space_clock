@@ -9,7 +9,7 @@ try:
     machine.reset()
 except Exception as e:
   print("run list apps")
-import lvgl as lv
+from m5stack import touch, lv
 rootLoading = lv.obj()
 label = lv.label(rootLoading)
 label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
@@ -21,7 +21,6 @@ if not 'body_font' in dir():
   body_font=lv.font_montserrat_14
 if not 'title_font' in dir():
   title_font=lv.font_montserrat_18
-from m5stack import touch
 import os, sys, time
 sys.path.append("/flash/sys")
 from helper import vibrating, distance, fileExist

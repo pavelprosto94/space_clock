@@ -12,57 +12,29 @@ try:
     machine.reset()
 except Exception as e:
   print("run clock")
-import gc
-import lvgl as lv
+from m5stack import lv, M5Screen
+M5Screen().clean_screen()
+M5Screen().set_screen_bg_color(0x000000)
+style = lv.style_t()
+style.init()
+style.set_bg_color(0,lv.color_hex(0x000))
+style.set_text_color(0,lv.color_hex(0xf0f0f0))
 rootLoading = lv.obj()
+rootLoading.add_style(0,style)
 label = lv.label(rootLoading)
 label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
 label.set_text('Loading...')
 lv.disp_load_scr(rootLoading)
 from uiflow import wait
 wait(0.01)
-import sys
+import sys, time, random, _thread
 sys.path.append("/flash/sys")
-from font import font_14, font_18
-try:
-  title_font=font_18()
-except Exception as e:
-  label.set_pos(0,0)
-  label.set_text("ERROR init title font:\n"+str(e))
-  sys.exit(0)
-gc.collect()
-try:
-  body_font=font_14()
-except Exception as e:
-  label.set_pos(0,0)
-  label.set_text("ERROR init body font:\n"+str(e))
-  sys.exit(0)
-gc.collect()
-from m5stack import M5Screen
-screen = M5Screen()
-screen.clean_screen()
-screen.set_screen_bg_color(0x000000)
-style = lv.style_t()
-style.init()
-colorBlack=lv.color_hex(0x000)
-colorWhite=lv.color_hex(0xf0f0f0)
-colorRed=lv.color_hex(0xf01010)
-colorGold=lv.color_hex(0xf0a010)
-style.set_bg_color(0,colorBlack)
-style.set_text_color(0,colorWhite)
-rootLoading = lv.obj()
-rootLoading.add_style(0,style)
-label = lv.label(rootLoading)
-label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
-label.set_text('Loading...')
+title_font=lv.font_montserrat_18
+body_font=lv.font_montserrat_14
 from helper import *
-from notifications import getUnreadNotificationsCount
 from m5stack import rtc, speaker, power, touch
 from easyIO import map_value
-import time
-import random
 from math import *
-import _thread
 sys.path.append("/flash/apps")
 def loadPNG(path):
   try:
@@ -106,7 +78,6 @@ def playAlarm():
     wait(0.1)
   wavFreez = False
 
-#draw Buttory level
 def drawButtory():
   ch=""
   if (power.getChargeState()):
@@ -121,14 +92,12 @@ MIN_BR=10
 ALARM_WAV='res/fallout.wav'
 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
 br=MAX_BR
-screen.set_screen_brightness(br)
+M5Screen().set_screen_brightness(br)
 alarm_mode=-1
 alarm_varius=random.randint(0,1)
 alarm_mode_old=-1
 alarms=getAlarms()
 
-#init clock
-screen.set_screen_bg_color(0x000000)
 root = lv.obj()
 root.add_style(0,style)
 label0 = lv.label(root)
@@ -141,7 +110,7 @@ label1.set_style_local_text_font(0,0,lv.font_montserrat_18)
 label1.set_text(str("{:02d}-{:02d}-{:04d}").format(now[2],now[1],now[0]))
 label2 = lv.label(root)
 label2.set_style_local_text_font(0,0,lv.font_montserrat_18)
-label2.set_style_local_text_color(0,0,colorGold)
+label2.set_style_local_text_color(0,0,lv.color_hex(0xf0a010))
 label2.set_text("")
 label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
 star=[]
@@ -162,9 +131,8 @@ x = 10
 y = 120
 xl = random.randint(-1, 1)
 yl = random.randint(-1, 1)
-screen.load_screen(root)
+lv.disp_load_scr(root)
 
-#redraw Clock 
 def redrawClock():
   global x
   global y
@@ -172,13 +140,13 @@ def redrawClock():
   while wavFreez:
     wait(0.1)
   if alarm_mode>-1:
-    screen.set_screen_brightness(0)
+    M5Screen().set_screen_brightness(0)
     image3.set_hidden(True)
     image1.set_src(loadPNG("res/space_clock/cosmonaut_1.png"))
     image1.set_pos(280, 100)
     image0.set_src(loadPNG("res/space_clock/satellite_{}.png".format(alarm_varius)))
     image0.set_pos(0, 176*alarm_varius)
-    style.set_text_color(0,colorRed)
+    style.set_text_color(0,lv.color_hex(0xf01010))
     root.add_style(0,style)
     label2.set_text("Save the cosmonaut!")
     label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
@@ -189,11 +157,11 @@ def redrawClock():
     x=280
     y=100
     br=MAX_BR
-    screen.set_screen_brightness(br)
+    M5Screen().set_screen_brightness(br)
     if wavFreez == False:
       _thread.start_new_thread(playAlarm,())
   else:
-    screen.set_screen_brightness(0)
+    M5Screen().set_screen_brightness(0)
     image3.set_hidden(False)
     label2.set_text("")
     label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
@@ -210,9 +178,8 @@ def redrawClock():
     x = 10
     y = 120
     br=MAX_BR
-    screen.set_screen_brightness(br)
+    M5Screen().set_screen_brightness(br)
 
-#draw every 0.5sec or 0.2sec
 def draw05sec():
   global xl
   global yl
@@ -250,7 +217,6 @@ def draw05sec():
         y=200
   image1.set_pos(int(x), int(y))
 
-#draw every 2.5sec or 1sec
 def draw25sec():
   global but_state
   label0.set_text(str("{:02d}:{:02d}").format(now[4],now[5]))
@@ -261,13 +227,12 @@ def draw25sec():
       but_state=power.getChargeState()
       drawButtory()
 
-#draw every 10sec
 def draw100sec():
   global br
   if alarm_mode==-1:
-    br=getBrightness(now[4],now[5]) #adaptive brightness
-    screen.set_screen_brightness(br) #set brightness
-    drawButtory() #update buttory image      
+    br=getBrightness(now[4],now[5])
+    M5Screen().set_screen_brightness(br)
+    drawButtory()   
 
 def onTouchPressed():
   global touched_pos
@@ -296,32 +261,6 @@ def onTouchReleased():
       label2.set_text("Save the astronaut!")
       label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
 
-# def startDeamons():
-#   def runDeamon(filepath):
-#     if filepath!="":
-#       print("run deamon:"+filepath)
-#       try:
-#         fdata = open(filepath, 'r')
-#         data=fdata.read()
-#         fdata.close()
-#         data = data[:data.find(" {} 0xff end deamon".format(chr(35)))]
-#         exec(data,{"__file__":"Deamon"})
-#         gc.collect()
-#       except Exception as e:
-#         print(str(e))
-#       print("end deamon:"+filepath)
-#   if ('deamon.py' in os.listdir("/flash")):
-#     with open("/flash/deamon.py", 'r') as f:
-#       my_lines = f.readlines()
-#       for l in my_lines:
-#         runDeamon(l[:-1])
-#     unReadN=getUnreadNotificationsCount()
-#     if unReadN>0:
-#       label2.set_text("{} unread notifications".format(unReadN))
-#       label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
-#     else:
-#       label2.set_text("")
-#logic  
 fix_update=0
 run = True
 but_state=power.getChargeState()
@@ -334,7 +273,7 @@ try:
       if (alarm_mode!=alarm_mode_old):
         alarm_mode_old=alarm_mode
         redrawClock()
-        screen.set_screen_brightness(MAX_BR)
+        M5Screen().set_screen_brightness(MAX_BR)
       draw05sec()
       if not run:
         break
@@ -350,11 +289,7 @@ try:
         draw25sec()
         if fix_update%100==0:
           draw100sec()
-          if fix_update>=600:
-            #if alarm_mode==-1:
-            #  startDeamons()
-            fix_update=1
-    #logic touch
+          fix_update=1
     if touch.status():
       if touched_time==0:
         touched_time=time.ticks_ms()
@@ -362,7 +297,7 @@ try:
         onTouchPressed()
         if br!=MAX_BR:
           br=MAX_BR
-          screen.set_screen_brightness(br)
+          M5Screen().set_screen_brightness(br)
           fix_update=1
           vibrating()
       elif touched_time!=-1 and alarm_mode==-1:
@@ -371,35 +306,31 @@ try:
             touched_time=-1
             if (touch.read()[1]) > 240:
               if (touch.read()[0])<315 and (touch.read()[0])>225:
-                #print("3 but hold")
                 vibrating()
-                screen.load_screen(rootLoading)
+                lv.disp_load_scr(rootLoading)
                 wait(0.01)
-                exec(open("/flash/apps/apps_explorer.py").read(),{'body_font':body_font, 'title_font':title_font})
-                screen.load_screen(root)
+                exec(open("/flash/apps/apps_explorer.py").read(),{})
+                lv.disp_load_scr(root)
                 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
                 fix_update=1
               elif (touch.read()[0])<215 and (touch.read()[0])>115:
-                #print("2 but hold")
                 vibrating()
-                screen.load_screen(rootLoading)
+                lv.disp_load_scr(rootLoading)
                 wait(0.01)
                 from Alarm_explorer import alarmExplorer
-                subscreen=alarmExplorer(screen)
-                screen.load_screen(root)
-                screen.del_screen(subscreen)
+                subscreen=alarmExplorer()
+                lv.disp_load_scr(root)
+                subscreen.delete()
                 alarms=getAlarms()
                 fix_update=1
               elif (touch.read()[0])<105 and (touch.read()[0])>5:
-                #print("1 but hold")
                 vibrating()
-                screen.load_screen(rootLoading)
+                lv.disp_load_scr(rootLoading)
                 wait(0.01)
                 from Notify_explorer import notificationsExplorer  
-                screen0 = screen.get_act_screen()
-                screen1=notificationsExplorer(body_font, title_font)
-                screen.load_screen(root)
-                screen.del_screen(screen1)
+                subscreen=notificationsExplorer(body_font, title_font)
+                lv.disp_load_scr(root)
+                subscreen.delete()
                 fix_update=1
     else:
       if touched_time>0 and touched_time!=-1:
@@ -414,4 +345,4 @@ try:
 except Exception as e:
   label.set_pos(0,0)
   label.set_text(str(e))
-  screen.load_screen(rootLoading)
+  lv.disp_load_scr(rootLoading)

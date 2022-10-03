@@ -8,9 +8,6 @@ import json
 def distance(cord1, cord2):
   c = sqrt((cord2[0]-cord1[0])**2 + (cord2[1]-cord1[1])**2)
   return c
-
-def vidro():
-  vibrating()
   
 def fileExist(path="/"):
   filename=path[path.rfind("/")+1:]
