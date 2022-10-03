@@ -33,6 +33,7 @@ if not wifiCfg.wlan_sta.isconnected():
 if wifiCfg.wlan_sta.isconnected():
   image0.set_network_img_src("https://raw.githubusercontent.com/pavelprosto94/space_clock/main/resources/install_download.png")
   label0.set_text("Initialization")
+  os.remove('apps/RGB-Color-Pick.py')
   def playAlarm():
     global animation_enable
     img=[]

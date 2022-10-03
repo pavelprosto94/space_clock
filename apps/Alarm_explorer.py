@@ -190,7 +190,7 @@ def alarmEditor(screen,hh=-1,mm=-1,weekRepeat=None):
     wait(0.01)
 
 
-def alarmExplorer(screen):
+def alarmExplorer(screen=None):
   if screen==None:
     screen = M5Screen()
   screen0 = screen.get_new_screen()
