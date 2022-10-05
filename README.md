@@ -1,5 +1,5 @@
 # Space Clock
-[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](/#user-content-you-can-support-me-too)
+[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://github.com/pavelprosto94/space_clock/#user-content-you-can-support-me-too)
 
  Turn your M5Stack into a space clock
 ![preview](resources/help.jpg)
