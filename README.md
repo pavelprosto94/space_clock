@@ -49,3 +49,8 @@ A bug may occur, the clock is not drawn, and the Run button is lit blue. Don't w
 - Wait for the installation to finish. All necessary files will be copied from the GitHub repository
 - After restart the device
 - Select App > space_clock.py > Run
+
+## You can support me too.
+I accept donation via [Webmoney](https://www.wmtransfer.com/). 
+My Webmoney(WMZ) wallet: Z803753663501
+Bitcoin wallet: [1HyvAY4r8S82KdJwiy6igwHEY49ExHtZjs](bitcoin:1HyvAY4r8S82KdJwiy6igwHEY49ExHtZjs?amount=0.0002)
