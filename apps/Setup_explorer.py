@@ -374,7 +374,7 @@ def showSystem():
   label=lv.label(btn1,None)
   label.set_text(lv.SYMBOL.WARNING+' Debug mode') 
   label=lv.label(page,None)
-  label.set_text('Disable the startup ringtone:')
+  label.set_text('Esable the startup ringtone:')
   label.set_pos(10, 145)
   sw1 = lv.switch(page, None)
   sw1.set_pos(250, 140)
