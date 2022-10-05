@@ -10,6 +10,11 @@ def mkDir(path):
     return ""
   return "/flash/"+path[:path.rfind("/")]
 
+def rmdir(dir):
+    for i in os.listdir(dir):
+        os.remove('{}/{}'.format(dir,i))
+    os.rmdir(dir)
+
 url="https://api.github.com/repos/pavelprosto94/space_clock/git/trees/main?recursive=1"
 animation_enable = -1
 
@@ -33,7 +38,14 @@ if not wifiCfg.wlan_sta.isconnected():
 if wifiCfg.wlan_sta.isconnected():
   image0.set_network_img_src("https://raw.githubusercontent.com/pavelprosto94/space_clock/main/resources/install_download.png")
   label0.set_text("Initialization")
-  os.remove('apps/RGB-Color-Pick.py')
+  try:
+    os.remove('apps/RGB-Color-Pick.py')
+  except Exception as e:
+    label0.set_text(str(e))
+  try:
+    rmdir('emojiImg')
+  except Exception as e:
+    label0.set_text(str(e))
   def playAlarm():
     global animation_enable
     img=[]
@@ -93,7 +105,17 @@ if wifiCfg.wlan_sta.isconnected():
     label1.set_text(str(e))
   else:
     if installing:
-      label0.set_text("Installation is complete\nRestart your device \nand run space_clock.py app")
+      import deviceCfg
+      fileA = open('/flash/apps/space_clock.py', 'rb')
+      fileB = open('/flash/main.py', 'wb')
+      fileB.write(fileA.read())
+      fileA.close()
+      fileB.close()
+      deviceCfg.set_device_mode(2)
+      deviceCfg.set_startup_hold(False)
+      deviceCfg.random_new_apikey()
+      #deviceCfg.save_wifi("","")
+      label0.set_text("Installation is complete.\nRestart your device now.")
   animation_enable = -1
 else:
   image0.set_img_src("img/wifi_config_sta_fail.png")

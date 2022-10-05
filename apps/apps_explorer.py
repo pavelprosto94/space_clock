@@ -24,6 +24,17 @@ if not 'title_font' in dir():
 import os, sys, time
 sys.path.append("/flash/sys")
 from helper import vibrating, distance, fileExist
+def event_handler(obj, event):
+  global ind_run
+  if event == lv.EVENT.CLICKED:
+    list_btn = lv.list.__cast__(obj)
+    for i,l in enumerate(apps):
+      txt=l[:l.rfind(".")]
+      if "_explorer" in txt:
+        txt=txt[:txt.rfind("_explorer")]
+      if list_btn.get_btn_text()==txt:
+        ind_run=i
+        break
 root = lv.obj()
 root.set_style_local_text_font(0,0,body_font)
 label_shadow_style = lv.style_t()
@@ -34,35 +45,27 @@ label_close.set_pos(238,220)
 label_close.add_style(lv.label.PART.MAIN, label_shadow_style)
 label_close.set_text(lv.SYMBOL.CLOSE+" close")
 ind_run=-1
-page = lv.page(root,None)
-page.set_size(320,220)
 apps=os.listdir("/flash/apps")
-ignore=["_clock","apps_explorer"]
-for l in ignore:
+_ignore=["_clock","apps_explorer"]
+for l in _ignore:
   i=0
   while i<len(apps):
     if l in apps[i]: apps.pop(i)
     i+=1 
+list1 = lv.list(root)
+list1.set_size(320, 215)
+list1.set_style_local_text_font(0,0,title_font)
 for i,l in enumerate(apps):
   app_icon="/flash/res/programm.png"
   if fileExist("/flash/res/{}.png".format(l)):
     app_icon="/flash/res/{}.png".format(l)
-  img = lv.img(page)
-  img.set_pos(3+74*(i%4),5+int(i/4)*94)
   with open(app_icon,'rb') as f: data = f.read()
   img_dsc = lv.img_dsc_t({'data_size': len(data),'data': data })
-  img.set_src(img_dsc)
-  lbl = lv.label(page)
-  lbl.set_hidden(True)
-  lbl.set_pos(3+74*(i%4),74+int(i/4)*94)
-  lbl.set_long_mode(lv.label.LONG.SROLL_CIRC)
-  lbl.set_align(lv.label.ALIGN.CENTER)
-  lbl.set_hidden(False)
   txt=l[:l.rfind(".")]
   if "_explorer" in txt:
     txt=txt[:txt.rfind("_explorer")]
-  lbl.set_text(txt)
-  lbl.set_size(64,18)
+  list_btn = list1.add_btn(img_dsc,txt)
+  list_btn.set_event_cb(event_handler)
 lv.disp_load_scr(root)
 run=True
 touched_time = 0
@@ -92,6 +95,7 @@ while run:
       if not "while run:" in data:
         protect_mode=True
         label_close.set_parent(rootLoading)
+        label.set_text('')
       try:
         exec(data,{"__file__":"Apps",'body_font':body_font, 'title_font':title_font})
       except Exception as e:
@@ -107,9 +111,9 @@ while run:
     if touched_time==0:
       touched_time=time.ticks_ms()
       touched_cord = touch.read()
-    if (touch.read()[1]) > 240:
+    elif (touch.read()[1]) > 240:
       if touched_time!=-1:
-        if time.ticks_ms()-touched_time>500:
+        if time.ticks_ms()-touched_time>250:
           if distance(touched_cord,touch.read())<3:
             touched_time=-1
             if (touch.read()[0])<315 and (touch.read()[0])>225:
@@ -127,15 +131,8 @@ while run:
                 label_close.add_style(lv.label.PART.MAIN, label_shadow_style)
                 label_close.set_text(lv.SYMBOL.CLOSE+" close")
                 lv.disp_load_scr(root)
-  else:
-    if touched_time!=0:
-      if distance(touched_cord,touch.read())<5:
-        ind_run=int((touched_cord[0]-3)/74)
-        if ind_run>=0:
-          ind_run+=int((touched_cord[1]-page.get_scrollable().get_y()-5)/94)*4
-        if ind_run>=len(apps):
-          ind_run=-1
-      touched_time=0
+  elif touched_time!=0:
+    touched_time=0
   wait(0.1)
 label.set_text('')
 lv.disp_load_scr(rootLoading)

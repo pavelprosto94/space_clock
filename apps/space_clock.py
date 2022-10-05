@@ -13,8 +13,9 @@ try:
 except Exception as e:
   print("run clock")
 from m5stack import lv, M5Screen
-M5Screen().clean_screen()
-M5Screen().set_screen_bg_color(0x000000)
+screen=M5Screen()
+screen.clean_screen()
+screen.set_screen_bg_color(0x000000)
 style = lv.style_t()
 style.init()
 style.set_bg_color(0,lv.color_hex(0x000))
@@ -27,7 +28,8 @@ label.set_text('Loading...')
 lv.disp_load_scr(rootLoading)
 from uiflow import wait
 wait(0.01)
-import sys, time, random, _thread
+import sys, time, random, _thread, gc
+gc.collect()
 sys.path.append("/flash/sys")
 title_font=lv.font_montserrat_18
 body_font=lv.font_montserrat_14
@@ -92,12 +94,11 @@ MIN_BR=10
 ALARM_WAV='res/fallout.wav'
 MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV=ConfigLoad()
 br=MAX_BR
-M5Screen().set_screen_brightness(br)
+screen.set_screen_brightness(br)
 alarm_mode=-1
 alarm_varius=random.randint(0,1)
 alarm_mode_old=-1
 alarms=getAlarms()
-
 root = lv.obj()
 root.add_style(0,style)
 label0 = lv.label(root)
@@ -140,7 +141,7 @@ def redrawClock():
   while wavFreez:
     wait(0.1)
   if alarm_mode>-1:
-    M5Screen().set_screen_brightness(0)
+    screen.set_screen_brightness(0)
     image3.set_hidden(True)
     image1.set_src(loadPNG("res/space_clock/cosmonaut_1.png"))
     image1.set_pos(280, 100)
@@ -157,11 +158,11 @@ def redrawClock():
     x=280
     y=100
     br=MAX_BR
-    M5Screen().set_screen_brightness(br)
+    screen.set_screen_brightness(br)
     if wavFreez == False:
       _thread.start_new_thread(playAlarm,())
   else:
-    M5Screen().set_screen_brightness(0)
+    screen.set_screen_brightness(0)
     image3.set_hidden(False)
     label2.set_text("")
     label2.align(root,lv.ALIGN.IN_TOP_MID, 0, 216)
@@ -178,7 +179,7 @@ def redrawClock():
     x = 10
     y = 120
     br=MAX_BR
-    M5Screen().set_screen_brightness(br)
+    screen.set_screen_brightness(br)
 
 def draw05sec():
   global xl
@@ -231,7 +232,7 @@ def draw100sec():
   global br
   if alarm_mode==-1:
     br=getBrightness(now[4],now[5])
-    M5Screen().set_screen_brightness(br)
+    screen.set_screen_brightness(br)
     drawButtory()   
 
 def onTouchPressed():
@@ -273,7 +274,7 @@ try:
       if (alarm_mode!=alarm_mode_old):
         alarm_mode_old=alarm_mode
         redrawClock()
-        M5Screen().set_screen_brightness(MAX_BR)
+        screen.set_screen_brightness(MAX_BR)
       draw05sec()
       if not run:
         break
@@ -289,15 +290,17 @@ try:
         draw25sec()
         if fix_update%100==0:
           draw100sec()
-          fix_update=1
-    if touch.status():
+    elif fix_update>250:
+      fix_update=1
+      gc.collect()
+    elif touch.status():
       if touched_time==0:
         touched_time=time.ticks_ms()
         touched_cord = touch.read()
         onTouchPressed()
         if br!=MAX_BR:
           br=MAX_BR
-          M5Screen().set_screen_brightness(br)
+          screen.set_screen_brightness(br)
           fix_update=1
           vibrating()
       elif touched_time!=-1 and alarm_mode==-1:
@@ -333,10 +336,10 @@ try:
                 subscreen.delete()
                 fix_update=1
     else:
-      if touched_time>0 and touched_time!=-1:
-        if touched_pos!=None:
+      if touched_time!=0:
+        if touched_pos!=None and touched_time!=-1:
           onTouchReleased()
-      touched_time=0
+        touched_time=0
     fix_update+=1
     if alarm_mode>-1:
       wait(0.04)
