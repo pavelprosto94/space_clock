@@ -52,5 +52,6 @@ A bug may occur, the clock is not drawn, and the Run button is lit blue. Don't w
 
 ## You can support me too.
 I accept donation via [Webmoney](https://www.wmtransfer.com/). 
+
 My Webmoney(WMZ) wallet: Z803753663501
 Bitcoin wallet: [1HyvAY4r8S82KdJwiy6igwHEY49ExHtZjs](bitcoin:1HyvAY4r8S82KdJwiy6igwHEY49ExHtZjs?amount=0.0002)
