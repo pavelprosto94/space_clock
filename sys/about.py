@@ -15,7 +15,7 @@ def AboutScreen():
   lbl.set_style_local_text_font(0,0,lv.font_montserrat_22)
   lbl.set_style_local_text_color(0,0,lv.color_hex(0x000))
   lbl=lv.label(root)
-  lbl.set_text('v1.3.0')
+  lbl.set_text('v1.4.0')
   lbl.set_pos(225, 129)
   lbl.set_style_local_text_font(0,0,lv.font_montserrat_14)
   lbl.set_style_local_text_color(0,0,lv.color_hex(0x0288fb))

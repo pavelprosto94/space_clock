@@ -1,21 +1,29 @@
-import nvs, json
+import json
 def readNotifications():
   notification = {}
   notification['lastseen'] = -1
   notification['tree'] = []
   try:
-    notification = json.loads(str(nvs.read_str('notification')))
+    with open('/flash/notifications.txt', 'r') as json_file:
+      notification = json.load(json_file)
   except Exception as e:
     notification = {}
     notification['lastseen'] = -1
     notification['tree'] = []
   return notification
 
+def clearNotifications():
+  notification = {}
+  notification['lastseen'] = -1
+  notification['tree'] = []
+  saveNotifications(notification)
+
 def saveNotifications(notification):
   err=0
   try:
     while notification != readNotifications() and err<99:
-      nvs.write(str('notification'), json.dumps(notification))
+      with open('/flash/notifications.txt', 'w') as outfile:
+        json.dump(notification, outfile)
       err+=1
     if err==99:
       return False
@@ -74,7 +82,9 @@ def removeNotification(id):
   if len(notification['tree'])>0:
     for i,d in enumerate(notification['tree']):
       if d['id']==id:
-        notification['tree']['id'].pop(i)
+        notification['tree'].pop(i)
+        if len(notification['tree'])>0:
+          notification['lastseen']=notification['tree'][-1]['id']
         saveNotifications(notification)
         break
       

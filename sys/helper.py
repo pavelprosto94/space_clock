@@ -76,17 +76,18 @@ def disableAlarm(hours=0, minutes=0):
 def ConfigLoad():
   data = {}
   data['setup'] = []
-  MAX_BR=100
-  ADAPTIVE_BR=True
-  MIN_BR=10
+  MAX_BR, ADAPTIVE_BR, MIN_BR, =100, True, 10  
   UTC_ZONE=3
   ALARM_WAV='res/fallout.wav'
-  if fileExist('/flash/alarm.txt'):
-    with open('/flash/alarm.txt', 'r') as json_file:
+  NOTIFY_WAV, NOTIFY_PERIODIC='res/link.wav', [-1,-1]
+  if fileExist('/flash/setup.txt'):
+    with open('/flash/setup.txt', 'r') as json_file:
       data = json.load(json_file)
   MAX_BR=safetyLoadJson(data['setup'],'MAX_BR',MAX_BR)
   ADAPTIVE_BR=safetyLoadJson(data['setup'],'ADAPTIVE_BR',ADAPTIVE_BR)
   MIN_BR=safetyLoadJson(data['setup'],'MIN_BR',MIN_BR)
   UTC_ZONE=safetyLoadJson(data['setup'],'UTC_ZONE',UTC_ZONE)
   ALARM_WAV=safetyLoadJson(data['setup'],'ALARM_WAV',ALARM_WAV)
-  return MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV
+  NOTIFY_WAV=safetyLoadJson(data['setup'],'NOTIFY_WAV',NOTIFY_WAV)
+  NOTIFY_PERIODIC=safetyLoadJson(data['setup'],'NOTIFY_PERIODIC',NOTIFY_PERIODIC)
+  return MAX_BR, ADAPTIVE_BR, MIN_BR, UTC_ZONE, ALARM_WAV, NOTIFY_WAV, NOTIFY_PERIODIC
