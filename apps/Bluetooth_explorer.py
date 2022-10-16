@@ -19,6 +19,7 @@ def event_slider_handler(obj,evt):
       deviceCfg.set_power_led(obj.get_state())
 def applyAndRestart():
   btn1.set_hidden(True)
+  wait(0.1)
   if st_sw1:
     with open("/flash/deamon.py", 'r') as file :
       filedata = file.read()
