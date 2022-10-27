@@ -28,11 +28,11 @@ if not wifiCfg.wlan_sta.isconnected():
 
 def saveWeather():
   data = {}
-  if ('alarm.txt' in os.listdir('/flash')):
-    with open('/flash/alarm.txt', 'r') as json_file:
+  if ('weather.txt' in os.listdir('/flash')):
+    with open('/flash/weather.txt', 'r') as json_file:
       data = json.load(json_file)
   data['weather'] = {'city' : w_city}
-  with open('/flash/alarm.txt', 'w') as outfile:
+  with open('/flash/weather.txt', 'w') as outfile:
     json.dump(data, outfile)
 
 def event_handler(obj, event):

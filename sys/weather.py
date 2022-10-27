@@ -8,8 +8,8 @@ if not fileExist(CACHEPATH):
  
 def getCity():
   data = {}
-  if ('alarm.txt' in os.listdir('/flash')):
-    with open('/flash/alarm.txt', 'r') as json_file:
+  if ('weather.txt' in os.listdir('/flash')):
+    with open('/flash/weather.txt', 'r') as json_file:
       data = json.load(json_file)
   try:
     ans=data['weather']['city']

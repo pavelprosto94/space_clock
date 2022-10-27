@@ -9,7 +9,7 @@ try:
     machine.reset()
 except Exception as e:
   print("run alarm")
-import lvgl as lv
+from m5stack import touch, lv, lcd
 rootLoading = lv.obj()
 label = lv.label(rootLoading)
 label.align(rootLoading,lv.ALIGN.CENTER, -20, 0)
@@ -17,25 +17,52 @@ label.set_text('Loading...')
 lv.disp_load_scr(rootLoading)
 from uiflow import wait
 wait(0.01)
-import os
-import sys
-import time
-from m5stack import touch
+import os, sys, time, _thread
 sys.path.append("/flash/sys")
 from helper import vibrating, distance
 listDir = []
 path = "/flash"
 buffer=None  
 
+def loadBMP():
+  global buffer
+  filename=buffer
+  buffer=None
+  wait(1)
+  lcd.fill(0x222222)
+  try:
+    with open('{}/{}'.format(path,filename),'rb') as f: data=f.read()
+    st = int.from_bytes(data[10:14], "little")
+    w = int.from_bytes(data[18:22], "little")
+    h = int.from_bytes(data[22:26], "little")
+    color_mode = int.from_bytes(data[28:32], "little")
+    line_b = int(int.from_bytes(data[34:38], "little")/h)
+    r,g,b=0,0,0
+    if w<=320 and h<=240 and color_mode==24 and w%4==0 and h%4==0:
+      for i,d in enumerate(data[st:]):
+        if i%3==0: b=d
+        if i%3==1: g=d
+        if i%3==2: 
+          r,x,y=d,int((i/3))%w,h-int((i/3)/w)
+          lcd.pixel(int((320-w)/2)+x, int((240-h)/2)+y, int(r*256*256+g*256+b))
+      lcd.print("close", 245, 224, 0xd84949)
+    else:
+      lcd.print("unsupported BMP format", 0, 0, 0xff0000)
+  except Exception as e:
+    lcd.print('{}/{}'.format(path,filename), 0, 0, 0xff0000)
+    lcd.print(str(e), 0, 16, 0xff0000)
+
 def loadImage(filename):
   global subscreen
+  global buffer
   subscreen=lv.obj()
-  if ".png" != filename[filename.rfind("."):]:
+  subscreen.set_style_local_bg_color(0,0,lv.color_hex(0x222222))
+  if ".png" != filename[filename.rfind("."):] and ".bmp" != filename[filename.rfind("."):]:
     label_file = lv.label(subscreen)
     label_file.set_style_local_text_color(0,0,lv.color_hex(0xa20000))
-    label_file.set_text("{} Just support PNG file for now".format(lv.SYMBOL.WARNING))
+    label_file.set_text("{} Just support PNG and BMP file for now".format(lv.SYMBOL.WARNING))
     label_file.align(None,lv.ALIGN.CENTER,0,0)
-  else:
+  elif ".png" == filename[filename.rfind("."):]:
     img = lv.img(subscreen,None)
     with open('{}/{}'.format(path,filename),'rb') as f:
       data = f.read()
@@ -50,6 +77,9 @@ def loadImage(filename):
   label_cl.set_text(lv.SYMBOL.CLOSE+" close")
   label_cl.add_style(lv.label.PART.MAIN, label_shadow_style)
   lv.disp_load_scr(subscreen)
+  if ".bmp" == filename[filename.rfind("."):]:
+    buffer=filename
+    _thread.start_new_thread(loadBMP,())
 
 def loadText(filename):
   global subscreen
