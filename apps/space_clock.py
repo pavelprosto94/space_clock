@@ -6,7 +6,7 @@ try:
     fileA.close()
     fileB.close()
     deviceCfg.set_device_mode(2)
-    deviceCfg.set_startup_hold(False)
+    deviceCfg.set_startup_hold(True)
     machine.reset()
 except Exception as e:
   print("run clock")

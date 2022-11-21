@@ -112,7 +112,7 @@ if wifiCfg.wlan_sta.isconnected():
       fileA.close()
       fileB.close()
       deviceCfg.set_device_mode(2)
-      deviceCfg.set_startup_hold(False)
+      deviceCfg.set_startup_hold(True)
       deviceCfg.random_new_apikey()
       #deviceCfg.save_wifi("","")
       label0.set_text("Installation is complete.\nRestart your device now.")
